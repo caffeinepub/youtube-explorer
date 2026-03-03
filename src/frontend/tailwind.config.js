@@ -73,6 +73,10 @@ export default {
           border: "oklch(var(--gauth-border) / <alpha-value>)",
           ring: "oklch(var(--gauth-ring) / <alpha-value>)",
         },
+        "sound-meme":   "oklch(var(--sound-meme) / <alpha-value>)",
+        "sound-animal": "oklch(var(--sound-animal) / <alpha-value>)",
+        "sound-effect": "oklch(var(--sound-effect) / <alpha-value>)",
+        "sound-music":  "oklch(var(--sound-music) / <alpha-value>)",
       },
       fontFamily: {
         display: ["Bricolage Grotesque", "ui-sans-serif", "system-ui", "sans-serif"],
@@ -89,6 +93,10 @@ export default {
         "card-hover": "0 8px 32px oklch(0 0 0 / 0.6)",
         "yt-red": "0 0 20px oklch(0.52 0.22 22 / 0.4)",
         "gauth-glow": "0 0 16px oklch(0.68 0.18 265 / 0.3)",
+        "sound-meme": "0 0 14px oklch(0.72 0.22 45 / 0.5)",
+        "sound-animal": "0 0 14px oklch(0.68 0.18 145 / 0.5)",
+        "sound-effect": "0 0 14px oklch(0.68 0.22 310 / 0.5)",
+        "sound-music": "0 0 14px oklch(0.72 0.18 265 / 0.5)",
       },
       keyframes: {
         "accordion-down": {

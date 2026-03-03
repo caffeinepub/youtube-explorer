@@ -79,6 +79,12 @@
     --gauth-surface: 0.18 0.02 265;
     --gauth-border: 0.3 0.025 265;
     --gauth-ring: 0.68 0.18 265;
+
+    /* Sound Buttons World tokens */
+    --sound-meme: 0.72 0.22 45;
+    --sound-animal: 0.68 0.18 145;
+    --sound-effect: 0.68 0.22 310;
+    --sound-music: 0.72 0.18 265;
   }
 
   /* Force dark mode always for this app */

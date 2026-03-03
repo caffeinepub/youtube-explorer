@@ -2,10 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Play, Search, Sparkles, X, Youtube } from "lucide-react";
+import { Play, Search, Sparkles, Volume2, X, Youtube } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useState } from "react";
 import GauthAIChat from "./components/GauthAIChat";
+import SoundButtonsWorld from "./components/SoundButtonsWorld";
 import {
   type Video,
   useAllFeaturedVideos,
@@ -16,7 +17,7 @@ import {
 
 const CATEGORIES = ["All", "Music", "Gaming", "Education", "Comedy", "Sports"];
 
-type AppTab = "youtube" | "gauth";
+type AppTab = "youtube" | "gauth" | "sounds";
 
 // ─── Skeleton Card ────────────────────────────────────────────────────────────
 
@@ -504,6 +505,30 @@ export default function App() {
                   />
                 )}
               </button>
+
+              <button
+                type="button"
+                data-ocid="sounds.tab"
+                role="tab"
+                aria-selected={activeTab === "sounds"}
+                onClick={() => setActiveTab("sounds")}
+                className={[
+                  "relative flex items-center gap-1.5 px-3.5 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sound-music",
+                  activeTab === "sounds"
+                    ? "text-sound-music bg-sound-music/10"
+                    : "text-muted-foreground hover:text-sound-music hover:bg-sound-music/10",
+                ].join(" ")}
+              >
+                <Volume2 className="w-4 h-4 flex-shrink-0" />
+                <span className="hidden sm:inline">Sounds</span>
+                {activeTab === "sounds" && (
+                  <motion.span
+                    layoutId="active-app-tab"
+                    className="absolute inset-0 rounded-lg bg-sound-music/10 -z-10"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.35 }}
+                  />
+                )}
+              </button>
             </nav>
           </div>
         </div>
@@ -522,7 +547,7 @@ export default function App() {
           >
             <YouTubeView onSelectVideo={setSelectedVideo} />
           </motion.div>
-        ) : (
+        ) : activeTab === "gauth" ? (
           <motion.div
             key="gauth"
             className="flex-1 flex flex-col min-h-0"
@@ -534,11 +559,22 @@ export default function App() {
           >
             <GauthAIChat />
           </motion.div>
+        ) : (
+          <motion.div
+            key="sounds"
+            className="flex-1 flex flex-col overflow-y-auto"
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 12 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            <SoundButtonsWorld />
+          </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ─── Footer (YouTube tab only) ───────────────────────────────── */}
-      {activeTab === "youtube" && (
+      {/* ─── Footer (YouTube and Sounds tabs) ───────────────────────── */}
+      {(activeTab === "youtube" || activeTab === "sounds") && (
         <footer className="border-t border-border py-5 mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 text-center">
             <p className="text-xs text-muted-foreground">

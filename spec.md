@@ -1,24 +1,38 @@
-# YouTube Explorer + Chat
+# YouTube Explorer
 
 ## Current State
-The app is a YouTube Explorer with a featured video grid, category filters, a search bar, and an embedded video player modal. Backend stores video entries with title, channelName, category, and videoId.
+A multi-tab app with:
+- YouTube tab: browse/search curated videos, play them in a modal iframe
+- Gauth AI tab: AI chat assistant powered by Gauth AI iframe
 
 ## Requested Changes (Diff)
 
 ### Add
-- A "Chat" tab/page accessible from the main navigation header alongside the current YouTube explorer.
-- A ChatGPT-style chat interface: message input at the bottom, scrollable message thread above, user messages on the right and assistant messages on the left.
-- Backend: store chat history (messages with role: user/assistant, text content, timestamp). Provide APIs: sendMessage (user sends text, backend responds with a simulated reply), getChatHistory, clearHistory.
-- The chat assistant responds with simple canned/simulated replies (no external AI API, just friendly pre-defined responses).
+- A new "Sound Buttons World" tab in the header navigation
+- A SoundButtonsWorld component with a grid of clickable sound buttons
+- Each button plays a short audio clip when clicked (using browser Audio API with publicly available sound URLs or base64 data)
+- Categories/sections for different sound types (e.g. Memes, Animals, Effects, Music)
+- Visual feedback when a button is playing (highlight/animation)
+- Stop/replay behavior: clicking an already-playing sound restarts it; clicking another stops the current one
 
 ### Modify
-- App header: add navigation tabs to switch between "YouTube" and "Chat" views.
+- AppTab type to include "sounds" option
+- Header nav to include a third tab button for Sound Buttons World
+- AnimatePresence content to render SoundButtonsWorld when "sounds" tab is active
+- Footer visibility logic to hide on sounds tab (or show on all)
 
 ### Remove
-- Nothing removed.
+- Nothing removed
 
 ## Implementation Plan
-1. Update Motoko backend to add Chat data types and actor methods: sendMessage, getChatHistory, clearChatHistory.
-2. Update frontend to add navigation between "YouTube" and "Chat" tabs.
-3. Build ChatPage component with scrollable message thread and bottom input bar styled like ChatGPT.
-4. Wire frontend to backend chat APIs.
+1. Create `src/frontend/src/components/SoundButtonsWorld.tsx` with:
+   - A curated list of ~30 sound buttons across 4 categories (Memes, Animals, Effects, Music)
+   - Use the Web Audio API or HTML Audio element with publicly hosted sound URLs
+   - Use free/public domain sounds from freesound-compatible CDNs or well-known meme sound URLs
+   - Grid layout with colored category badges
+   - Playing state tracking to show active button highlight
+2. Update `App.tsx`:
+   - Add "sounds" to AppTab type
+   - Add Sound Buttons World tab button in header nav
+   - Add motion.div case for "sounds" tab in AnimatePresence
+   - Import and render SoundButtonsWorld component
