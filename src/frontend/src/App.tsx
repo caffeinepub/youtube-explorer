@@ -450,7 +450,7 @@ function YouTubeView({ onSelectVideo }: YouTubeViewProps) {
 // ─── Password Gate ────────────────────────────────────────────────────────────
 
 const SESSION_KEY = "yt_explorer_unlocked";
-const CORRECT_PASSWORD = "1234";
+const CORRECT_PASSWORD = "kashisfat";
 
 interface PasswordGateProps {
   onUnlock: () => void;
