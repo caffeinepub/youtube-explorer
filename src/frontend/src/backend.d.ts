@@ -7,24 +7,31 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface Video {
-    id: string;
-    title: string;
-    channelName: string;
-    category: string;
-    videoId: string;
-}
-export interface Message {
-    id: string;
+export interface ChatMessage {
+    id: MessageId;
     content: string;
     role: string;
     timestamp: bigint;
 }
+export type Time = bigint;
+export type MessageId = bigint;
+export interface Post {
+    id: PostId;
+    content: string;
+    author: string;
+    timestamp: Time;
+}
+export type PostId = bigint;
 export interface backendInterface {
     clearChatHistory(): Promise<void>;
-    getAllFeaturedVideos(): Promise<Array<Video>>;
-    getChatHistory(): Promise<Array<Message>>;
-    getVideosByCategory(category: string): Promise<Array<Video>>;
-    searchVideosByKeyword(keyword: string): Promise<Array<Video>>;
-    sendMessage(userText: string): Promise<Message>;
+    createPost(author: string, content: string): Promise<void>;
+    getAllPosts(): Promise<Array<Post>>;
+    getAllPreferences(): Promise<Array<[string, string]>>;
+    getChatHistory(): Promise<Array<ChatMessage>>;
+    getLikedPostsByUser(userId: Principal): Promise<Array<PostId>>;
+    getPreference(key: string): Promise<string | null>;
+    hasUserLikedPost(userId: Principal, postId: PostId): Promise<boolean>;
+    sendMessage(userText: string): Promise<ChatMessage>;
+    setPreference(key: string, value: string): Promise<void>;
+    toggleLikePost(postId: PostId): Promise<boolean>;
 }

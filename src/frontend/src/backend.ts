@@ -89,26 +89,33 @@ export class ExternalBlob {
         return this;
     }
 }
-export interface Video {
-    id: string;
-    title: string;
-    channelName: string;
-    category: string;
-    videoId: string;
-}
-export interface Message {
-    id: string;
+export interface ChatMessage {
+    id: MessageId;
     content: string;
     role: string;
     timestamp: bigint;
 }
+export type Time = bigint;
+export type MessageId = bigint;
+export interface Post {
+    id: PostId;
+    content: string;
+    author: string;
+    timestamp: Time;
+}
+export type PostId = bigint;
 export interface backendInterface {
     clearChatHistory(): Promise<void>;
-    getAllFeaturedVideos(): Promise<Array<Video>>;
-    getChatHistory(): Promise<Array<Message>>;
-    getVideosByCategory(category: string): Promise<Array<Video>>;
-    searchVideosByKeyword(keyword: string): Promise<Array<Video>>;
-    sendMessage(userText: string): Promise<Message>;
+    createPost(author: string, content: string): Promise<void>;
+    getAllPosts(): Promise<Array<Post>>;
+    getAllPreferences(): Promise<Array<[string, string]>>;
+    getChatHistory(): Promise<Array<ChatMessage>>;
+    getLikedPostsByUser(userId: Principal): Promise<Array<PostId>>;
+    getPreference(key: string): Promise<string | null>;
+    hasUserLikedPost(userId: Principal, postId: PostId): Promise<boolean>;
+    sendMessage(userText: string): Promise<ChatMessage>;
+    setPreference(key: string, value: string): Promise<void>;
+    toggleLikePost(postId: PostId): Promise<boolean>;
 }
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
@@ -126,21 +133,49 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getAllFeaturedVideos(): Promise<Array<Video>> {
+    async createPost(arg0: string, arg1: string): Promise<void> {
         if (this.processError) {
             try {
-                const result = await this.actor.getAllFeaturedVideos();
+                const result = await this.actor.createPost(arg0, arg1);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getAllFeaturedVideos();
+            const result = await this.actor.createPost(arg0, arg1);
             return result;
         }
     }
-    async getChatHistory(): Promise<Array<Message>> {
+    async getAllPosts(): Promise<Array<Post>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllPosts();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllPosts();
+            return result;
+        }
+    }
+    async getAllPreferences(): Promise<Array<[string, string]>> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.getAllPreferences();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getAllPreferences();
+            return result;
+        }
+    }
+    async getChatHistory(): Promise<Array<ChatMessage>> {
         if (this.processError) {
             try {
                 const result = await this.actor.getChatHistory();
@@ -154,35 +189,49 @@ export class Backend implements backendInterface {
             return result;
         }
     }
-    async getVideosByCategory(arg0: string): Promise<Array<Video>> {
+    async getLikedPostsByUser(arg0: Principal): Promise<Array<PostId>> {
         if (this.processError) {
             try {
-                const result = await this.actor.getVideosByCategory(arg0);
+                const result = await this.actor.getLikedPostsByUser(arg0);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.getVideosByCategory(arg0);
+            const result = await this.actor.getLikedPostsByUser(arg0);
             return result;
         }
     }
-    async searchVideosByKeyword(arg0: string): Promise<Array<Video>> {
+    async getPreference(arg0: string): Promise<string | null> {
         if (this.processError) {
             try {
-                const result = await this.actor.searchVideosByKeyword(arg0);
+                const result = await this.actor.getPreference(arg0);
+                return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.getPreference(arg0);
+            return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
+        }
+    }
+    async hasUserLikedPost(arg0: Principal, arg1: PostId): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.hasUserLikedPost(arg0, arg1);
                 return result;
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
-            const result = await this.actor.searchVideosByKeyword(arg0);
+            const result = await this.actor.hasUserLikedPost(arg0, arg1);
             return result;
         }
     }
-    async sendMessage(arg0: string): Promise<Message> {
+    async sendMessage(arg0: string): Promise<ChatMessage> {
         if (this.processError) {
             try {
                 const result = await this.actor.sendMessage(arg0);
@@ -196,6 +245,37 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+    async setPreference(arg0: string, arg1: string): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.setPreference(arg0, arg1);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.setPreference(arg0, arg1);
+            return result;
+        }
+    }
+    async toggleLikePost(arg0: PostId): Promise<boolean> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.toggleLikePost(arg0);
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.toggleLikePost(arg0);
+            return result;
+        }
+    }
+}
+function from_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [string]): string | null {
+    return value.length === 0 ? null : value[0];
 }
 export interface CreateActorOptions {
     agent?: Agent;

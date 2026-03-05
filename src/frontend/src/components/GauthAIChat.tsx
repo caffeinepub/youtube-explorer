@@ -5,6 +5,7 @@ import { ArrowUp, Brain, RotateCcw, Sparkles } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Message } from "../hooks/useQueries";
+// Message is re-exported as ChatMessage alias from useQueries
 import {
   useChatHistory,
   useClearChatHistory,
@@ -16,7 +17,7 @@ import {
 function TypingIndicator() {
   return (
     <motion.div
-      data-ocid="chat.loading_state"
+      data-ocid="gauth.loading_state"
       className="flex items-end gap-3 mb-4"
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -200,9 +201,29 @@ export default function GauthAIChat() {
       {/* ─── Chat Header ──────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-gauth-surface border border-gauth-border flex items-center justify-center shadow-gauth-glow">
+          <motion.div
+            className="w-8 h-8 rounded-full bg-gauth-surface border border-gauth-border flex items-center justify-center shadow-gauth-glow"
+            animate={
+              isTyping
+                ? {
+                    scale: [1, 1.12, 1],
+                    boxShadow: [
+                      "0 0 0px transparent",
+                      "0 0 16px oklch(0.68 0.18 265 / 0.6)",
+                      "0 0 0px transparent",
+                    ],
+                  }
+                : { scale: 1, boxShadow: "0 0 0px transparent" }
+            }
+            transition={
+              isTyping
+                ? { duration: 1.5, repeat: Number.POSITIVE_INFINITY }
+                : { duration: 0.3 }
+            }
+            style={{ originX: 0.5, originY: 0.5 }}
+          >
             <Sparkles className="w-4 h-4 text-gauth-accent" />
-          </div>
+          </motion.div>
           <div>
             <h2 className="text-sm font-bold text-foreground font-display leading-none">
               Gauth AI
@@ -214,7 +235,7 @@ export default function GauthAIChat() {
         </div>
 
         <Button
-          data-ocid="chat.clear_button"
+          data-ocid="gauth.clear.button"
           variant="ghost"
           size="sm"
           onClick={handleClear}
@@ -272,7 +293,7 @@ export default function GauthAIChat() {
         <div className="max-w-3xl mx-auto flex items-end gap-2">
           <div className="flex-1 relative">
             <Textarea
-              data-ocid="chat.input"
+              data-ocid="gauth.chat.input"
               ref={textareaRef}
               value={inputValue}
               onChange={handleInput}
@@ -285,16 +306,23 @@ export default function GauthAIChat() {
             />
           </div>
 
-          <Button
-            data-ocid="chat.send_button"
-            onClick={handleSend}
-            disabled={!canSend}
-            size="icon"
-            className="w-9 h-9 rounded-xl flex-shrink-0 bg-gauth-accent hover:bg-gauth-accent-hover text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-gauth-glow transition-all duration-200"
-            aria-label="Send message"
+          <motion.div
+            whileHover={canSend ? { scale: 1.1 } : {}}
+            whileTap={canSend ? { scale: 0.88 } : {}}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            style={{ originX: 0.5, originY: 0.5 }}
           >
-            <ArrowUp className="w-4 h-4" />
-          </Button>
+            <Button
+              data-ocid="gauth.send.button"
+              onClick={handleSend}
+              disabled={!canSend}
+              size="icon"
+              className="w-9 h-9 rounded-xl flex-shrink-0 bg-gauth-accent hover:bg-gauth-accent-hover text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-gauth-glow"
+              aria-label="Send message"
+            >
+              <ArrowUp className="w-4 h-4" />
+            </Button>
+          </motion.div>
         </div>
         <p className="text-[10px] text-muted-foreground text-center mt-2 max-w-3xl mx-auto">
           Press Enter to send · Shift+Enter for new line

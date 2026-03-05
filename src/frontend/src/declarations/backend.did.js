@@ -8,15 +8,17 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
-export const Video = IDL.Record({
-  'id' : IDL.Text,
-  'title' : IDL.Text,
-  'channelName' : IDL.Text,
-  'category' : IDL.Text,
-  'videoId' : IDL.Text,
+export const PostId = IDL.Nat;
+export const Time = IDL.Int;
+export const Post = IDL.Record({
+  'id' : PostId,
+  'content' : IDL.Text,
+  'author' : IDL.Text,
+  'timestamp' : Time,
 });
-export const Message = IDL.Record({
-  'id' : IDL.Text,
+export const MessageId = IDL.Nat;
+export const ChatMessage = IDL.Record({
+  'id' : MessageId,
   'content' : IDL.Text,
   'role' : IDL.Text,
   'timestamp' : IDL.Int,
@@ -24,25 +26,40 @@ export const Message = IDL.Record({
 
 export const idlService = IDL.Service({
   'clearChatHistory' : IDL.Func([], [], []),
-  'getAllFeaturedVideos' : IDL.Func([], [IDL.Vec(Video)], ['query']),
-  'getChatHistory' : IDL.Func([], [IDL.Vec(Message)], ['query']),
-  'getVideosByCategory' : IDL.Func([IDL.Text], [IDL.Vec(Video)], ['query']),
-  'searchVideosByKeyword' : IDL.Func([IDL.Text], [IDL.Vec(Video)], ['query']),
-  'sendMessage' : IDL.Func([IDL.Text], [Message], []),
+  'createPost' : IDL.Func([IDL.Text, IDL.Text], [], []),
+  'getAllPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
+  'getAllPreferences' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))],
+      ['query'],
+    ),
+  'getChatHistory' : IDL.Func([], [IDL.Vec(ChatMessage)], ['query']),
+  'getLikedPostsByUser' : IDL.Func(
+      [IDL.Principal],
+      [IDL.Vec(PostId)],
+      ['query'],
+    ),
+  'getPreference' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], ['query']),
+  'hasUserLikedPost' : IDL.Func([IDL.Principal, PostId], [IDL.Bool], ['query']),
+  'sendMessage' : IDL.Func([IDL.Text], [ChatMessage], []),
+  'setPreference' : IDL.Func([IDL.Text, IDL.Text], [], []),
+  'toggleLikePost' : IDL.Func([PostId], [IDL.Bool], []),
 });
 
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
-  const Video = IDL.Record({
-    'id' : IDL.Text,
-    'title' : IDL.Text,
-    'channelName' : IDL.Text,
-    'category' : IDL.Text,
-    'videoId' : IDL.Text,
+  const PostId = IDL.Nat;
+  const Time = IDL.Int;
+  const Post = IDL.Record({
+    'id' : PostId,
+    'content' : IDL.Text,
+    'author' : IDL.Text,
+    'timestamp' : Time,
   });
-  const Message = IDL.Record({
-    'id' : IDL.Text,
+  const MessageId = IDL.Nat;
+  const ChatMessage = IDL.Record({
+    'id' : MessageId,
     'content' : IDL.Text,
     'role' : IDL.Text,
     'timestamp' : IDL.Int,
@@ -50,11 +67,28 @@ export const idlFactory = ({ IDL }) => {
   
   return IDL.Service({
     'clearChatHistory' : IDL.Func([], [], []),
-    'getAllFeaturedVideos' : IDL.Func([], [IDL.Vec(Video)], ['query']),
-    'getChatHistory' : IDL.Func([], [IDL.Vec(Message)], ['query']),
-    'getVideosByCategory' : IDL.Func([IDL.Text], [IDL.Vec(Video)], ['query']),
-    'searchVideosByKeyword' : IDL.Func([IDL.Text], [IDL.Vec(Video)], ['query']),
-    'sendMessage' : IDL.Func([IDL.Text], [Message], []),
+    'createPost' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'getAllPosts' : IDL.Func([], [IDL.Vec(Post)], ['query']),
+    'getAllPreferences' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))],
+        ['query'],
+      ),
+    'getChatHistory' : IDL.Func([], [IDL.Vec(ChatMessage)], ['query']),
+    'getLikedPostsByUser' : IDL.Func(
+        [IDL.Principal],
+        [IDL.Vec(PostId)],
+        ['query'],
+      ),
+    'getPreference' : IDL.Func([IDL.Text], [IDL.Opt(IDL.Text)], ['query']),
+    'hasUserLikedPost' : IDL.Func(
+        [IDL.Principal, PostId],
+        [IDL.Bool],
+        ['query'],
+      ),
+    'sendMessage' : IDL.Func([IDL.Text], [ChatMessage], []),
+    'setPreference' : IDL.Func([IDL.Text, IDL.Text], [], []),
+    'toggleLikePost' : IDL.Func([PostId], [IDL.Bool], []),
   });
 };
 

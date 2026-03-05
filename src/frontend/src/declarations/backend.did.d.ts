@@ -10,26 +10,33 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
-export interface Message {
-  'id' : string,
+export interface ChatMessage {
+  'id' : MessageId,
   'content' : string,
   'role' : string,
   'timestamp' : bigint,
 }
-export interface Video {
-  'id' : string,
-  'title' : string,
-  'channelName' : string,
-  'category' : string,
-  'videoId' : string,
+export type MessageId = bigint;
+export interface Post {
+  'id' : PostId,
+  'content' : string,
+  'author' : string,
+  'timestamp' : Time,
 }
+export type PostId = bigint;
+export type Time = bigint;
 export interface _SERVICE {
   'clearChatHistory' : ActorMethod<[], undefined>,
-  'getAllFeaturedVideos' : ActorMethod<[], Array<Video>>,
-  'getChatHistory' : ActorMethod<[], Array<Message>>,
-  'getVideosByCategory' : ActorMethod<[string], Array<Video>>,
-  'searchVideosByKeyword' : ActorMethod<[string], Array<Video>>,
-  'sendMessage' : ActorMethod<[string], Message>,
+  'createPost' : ActorMethod<[string, string], undefined>,
+  'getAllPosts' : ActorMethod<[], Array<Post>>,
+  'getAllPreferences' : ActorMethod<[], Array<[string, string]>>,
+  'getChatHistory' : ActorMethod<[], Array<ChatMessage>>,
+  'getLikedPostsByUser' : ActorMethod<[Principal], Array<PostId>>,
+  'getPreference' : ActorMethod<[string], [] | [string]>,
+  'hasUserLikedPost' : ActorMethod<[Principal, PostId], boolean>,
+  'sendMessage' : ActorMethod<[string], ChatMessage>,
+  'setPreference' : ActorMethod<[string, string], undefined>,
+  'toggleLikePost' : ActorMethod<[PostId], boolean>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

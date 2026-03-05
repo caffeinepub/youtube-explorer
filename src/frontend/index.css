@@ -81,10 +81,44 @@
     --gauth-ring: 0.68 0.18 265;
 
     /* Sound Buttons World tokens */
-    --sound-meme: 0.72 0.22 45;
-    --sound-animal: 0.68 0.18 145;
-    --sound-effect: 0.68 0.22 310;
-    --sound-music: 0.72 0.18 265;
+    --sound-meme:    0.75 0.24 45;
+    --sound-animal:  0.72 0.20 145;
+    --sound-effect:  0.72 0.26 310;
+    --sound-music:   0.75 0.20 265;
+    --sound-ui:      0.72 0.20 200;
+    --sound-fav:     0.78 0.24 65;
+    --sound-surface: 0.14 0.008 260;
+    --sound-card:    0.17 0.01 260;
+    --sound-playing-glow-meme:   0 0 22px oklch(0.75 0.24 45 / 0.65);
+    --sound-playing-glow-animal: 0 0 22px oklch(0.72 0.20 145 / 0.65);
+    --sound-playing-glow-effect: 0 0 22px oklch(0.72 0.26 310 / 0.65);
+    --sound-playing-glow-music:  0 0 22px oklch(0.75 0.20 265 / 0.65);
+    --sound-playing-glow-ui:     0 0 22px oklch(0.72 0.20 200 / 0.65);
+    --sound-playing-glow-fav:    0 0 22px oklch(0.78 0.24 65 / 0.65);
+
+    /* Games tokens */
+    --game-accent: 0.72 0.22 300;
+    --game-accent-hover: 0.78 0.22 300;
+    --game-surface: 0.17 0.025 300;
+    --game-border: 0.3 0.03 300;
+    --game-ring: 0.72 0.22 300;
+    --game-snake: 0.78 0.22 145;
+    --game-snake-glow: oklch(0.78 0.22 145 / 0.4);
+    --game-x-color: 0.72 0.22 22;
+    --game-o-color: 0.68 0.22 265;
+    --game-card-back: 0.65 0.22 300;
+
+    /* Instagram tokens */
+    --ig-bg: 0.1 0.004 260;
+    --ig-surface: 0.14 0.005 260;
+    --ig-border: 0.24 0.006 260;
+    --ig-text: 0.94 0.005 260;
+    --ig-muted: 0.55 0.01 260;
+    --ig-accent: 0.68 0.18 295;
+    --ig-heart: 0.6 0.24 16;
+    --ig-grad-start: 0.72 0.19 45;
+    --ig-grad-mid: 0.6 0.25 10;
+    --ig-grad-end: 0.62 0.22 295;
   }
 
   /* Force dark mode always for this app */
@@ -147,5 +181,83 @@
 
   .thumbnail-zoom:hover {
     transform: scale(1.05);
+  }
+
+  /* Instagram story ring gradient */
+  .ig-story-ring {
+    background: linear-gradient(
+      135deg,
+      oklch(0.72 0.19 45) 0%,
+      oklch(0.6 0.25 10) 50%,
+      oklch(0.62 0.22 295) 100%
+    );
+  }
+
+  /* Instagram tab gradient text */
+  .ig-tab-active {
+    background: linear-gradient(135deg, oklch(0.72 0.19 45), oklch(0.6 0.25 10), oklch(0.62 0.22 295));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Soundboard waveform animation */
+  @keyframes soundbar {
+    0%, 100% { transform: scaleY(0.25); }
+    50%       { transform: scaleY(1); }
+  }
+  .soundbar-1 { animation: soundbar 0.55s ease-in-out infinite; animation-delay: 0ms; }
+  .soundbar-2 { animation: soundbar 0.55s ease-in-out infinite; animation-delay: 80ms; }
+  .soundbar-3 { animation: soundbar 0.55s ease-in-out infinite; animation-delay: 160ms; }
+  .soundbar-4 { animation: soundbar 0.55s ease-in-out infinite; animation-delay: 240ms; }
+  .soundbar-5 { animation: soundbar 0.55s ease-in-out infinite; animation-delay: 320ms; }
+
+  /* Games glow effects */
+  .game-accent-glow {
+    box-shadow: 0 0 20px oklch(0.72 0.22 300 / 0.35);
+  }
+
+  .game-snake-glow {
+    box-shadow: 0 0 16px oklch(0.78 0.22 145 / 0.5);
+  }
+
+  /* Memory card flip */
+  .memory-card-container {
+    perspective: 600px;
+  }
+
+  .memory-card-inner {
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 100%;
+    height: 100%;
+  }
+
+  .memory-card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+
+  .memory-card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .memory-card-back-face {
+    transform: rotateY(180deg);
   }
 }

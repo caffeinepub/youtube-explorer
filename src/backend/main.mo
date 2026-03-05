@@ -1,170 +1,147 @@
 import Array "mo:core/Array";
 import Iter "mo:core/Iter";
 import List "mo:core/List";
+import Map "mo:core/Map";
 import Nat "mo:core/Nat";
+import Principal "mo:core/Principal";
 import Runtime "mo:core/Runtime";
+import Set "mo:core/Set";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 
+
+
 actor {
-  type Video = {
-    id : Text;
-    title : Text;
-    channelName : Text;
-    videoId : Text;
-    category : Text;
+  type PostId = Nat;
+
+  type Post = {
+    id : PostId;
+    author : Text;
+    content : Text;
+    timestamp : Time.Time;
   };
 
-  type Message = {
-    id : Text;
+  type MessageId = Nat;
+  type ChatMessage = {
+    id : MessageId;
     role : Text; // "user" or "assistant"
     content : Text;
     timestamp : Int;
   };
 
-  let featuredVideos = [
-    {
-      id = "1";
-      title = "Taylor Swift - Shake It Off";
-      channelName = "Taylor Swift";
-      videoId = "nfWlot6h_JM";
-      category = "Music";
-    },
-    {
-      id = "2";
-      title = "MrBeast - I Gave $1,000,000 To Random People";
-      channelName = "MrBeast";
-      videoId = "xDqkB6lGHVI";
-      category = "Entertainment";
-    },
-    {
-      id = "3";
-      title = "NASA Live: Earth From Space";
-      channelName = "NASA";
-      videoId = "86YLFOog4GM";
-      category = "Education";
-    },
-    {
-      id = "4";
-      title = "Ariana Grande - 7 rings";
-      channelName = "Ariana Grande";
-      videoId = "QYh6mYIJG2Y";
-      category = "Music";
-    },
-    {
-      id = "5";
-      title = "PewDiePie - Minecraft Lets Play";
-      channelName = "PewDiePie";
-      videoId = "DqAyGWnQ-Bg";
-      category = "Gaming";
-    },
-    {
-      id = "6";
-      title = "Soccer Highlights - Champions League Final";
-      channelName = "Soccer Highlights";
-      videoId = "xyz123";
-      category = "Sports";
-    },
-    {
-      id = "7";
-      title = "Funny Cat Compilation";
-      channelName = "Funny Pets";
-      videoId = "dQw4w9WgXcQ";
-      category = "Comedy";
-    },
-    {
-      id = "8";
-      title = "Fortnite Battle Royale Tips";
-      channelName = "Fortnite Pro";
-      videoId = "9bZkp7q19f0";
-      category = "Gaming";
-    },
-    {
-      id = "9";
-      title = "Billie Eilish - Bad Guy";
-      channelName = "Billie Eilish";
-      videoId = "DyDfgMOUjCI";
-      category = "Music";
-    },
-    {
-      id = "10";
-      title = "Stand-up Comedy Special";
-      channelName = "Comedy Central";
-      videoId = "7QU1nvuxaMA";
-      category = "Comedy";
-    },
-    {
-      id = "11";
-      title = "Top 10 NBA Dunks";
-      channelName = "NBA";
-      videoId = "nba123";
-      category = "Sports";
-    },
-    {
-      id = "12";
-      title = "How To Solve A Rubik's Cube";
-      channelName = "J Perm";
-      videoId = "R-R0KrXvWbc";
-      category = "Education";
-    },
-  ];
+  // Posts
+  var nextPostId : PostId = 1;
+  let posts = Map.empty<PostId, Post>();
 
-  var messageCounter : Nat = 0;
-  var chatHistory : List.List<Message> = List.empty<Message>();
+  // Liked posts by user (canister principal as Text -> PostId Set)
+  let likesByUser = Map.empty<Principal, Set.Set<PostId>>();
 
-  public query func getAllFeaturedVideos() : async [Video] {
-    featuredVideos;
-  };
+  // Gauth AI Chat
+  var nextMessageId : MessageId = 1;
+  let chatHistory = Map.empty<Principal, List.List<ChatMessage>>();
 
-  func matchesKeyword(text : Text, keyword : Text) : Bool {
-    text.contains(#text(keyword));
-  };
+  // App preferences (simple Text -> Text store)
+  let appPreferences = Map.empty<Text, Text>();
 
-  public query func searchVideosByKeyword(keyword : Text) : async [Video] {
-    if (keyword.trim(#char(' ')).size() == 0) {
-      Runtime.trap("Keyword cannot be empty");
+  // Post Functions
+
+  public shared ({ caller }) func createPost(author : Text, content : Text) : async () {
+    let post : Post = {
+      id = nextPostId;
+      author;
+      content;
+      timestamp = Time.now();
     };
-    featuredVideos.values().filter(
-      func(video) {
-        matchesKeyword(video.title, keyword) or matchesKeyword(video.channelName, keyword);
-      }
-    ).toArray();
+    posts.add(nextPostId, post);
+    nextPostId += 1;
   };
 
-  public query func getVideosByCategory(category : Text) : async [Video] {
-    featuredVideos.values().filter(
-      func(video) {
-        Text.equal(video.category, category);
-      }
-    ).toArray();
+  public query ({ caller }) func getAllPosts() : async [Post] {
+    posts.values().toArray();
   };
 
-  // Chat functionality
-  public shared ({ caller }) func sendMessage(userText : Text) : async Message {
-    let userId : Text = "user-" # messageCounter.toText();
+  // Like/Unlike Post
+  public shared ({ caller }) func toggleLikePost(postId : PostId) : async Bool {
+    let user = caller;
+    if (Principal.equal(user, Principal.fromText("2vxsx-fae"))) {
+      Runtime.trap("Anonymous users cannot like posts. Please create a canister or use an II")
+    };
 
-    let userMessage : Message = {
-      id = userId;
+    switch (posts.get(postId)) {
+      case (null) { Runtime.trap("Post not found") };
+      case (_) {
+        let currentLikes = switch (likesByUser.get(user)) {
+          case (null) { Set.empty<PostId>() };
+          case (?likes) { likes };
+        };
+
+        let alreadyLiked = currentLikes.contains(postId);
+
+        let updatedLikes = Set.empty<PostId>();
+        currentLikes.values().forEach(
+          func(existingPostId) {
+            if (existingPostId != postId) {
+              updatedLikes.add(existingPostId);
+            };
+          }
+        );
+
+        if (not alreadyLiked) {
+          updatedLikes.add(postId);
+        };
+
+        likesByUser.add(user, updatedLikes);
+        not alreadyLiked;
+      };
+    };
+  };
+
+  public query ({ caller }) func getLikedPostsByUser(userId : Principal) : async [PostId] {
+    switch (likesByUser.get(userId)) {
+      case (null) { [] };
+      case (?likes) { likes.toArray() };
+    };
+  };
+
+  public query ({ caller }) func hasUserLikedPost(userId : Principal, postId : PostId) : async Bool {
+    switch (likesByUser.get(userId)) {
+      case (null) { false };
+      case (?likes) { likes.contains(postId) };
+    };
+  };
+
+  // Gauth AI Chat Functions
+
+  public shared ({ caller }) func sendMessage(userText : Text) : async ChatMessage {
+    let userMessage : ChatMessage = {
+      id = nextMessageId;
       role = "user";
       content = userText;
       timestamp = Time.now();
     };
 
-    chatHistory.add(userMessage);
+    let existingHistory = switch (chatHistory.get(caller)) {
+      case (null) { List.empty<ChatMessage>() };
+      case (?history) { history };
+    };
+
+    // Add user message to history first
+    existingHistory.add(userMessage);
 
     let replyText = pickCannedReply();
-    let assistantId : Text = "assistant-" # messageCounter.toText();
-
-    let assistantMessage : Message = {
-      id = assistantId;
+    let assistantMessage : ChatMessage = {
+      id = nextMessageId + 1;
       role = "assistant";
       content = replyText;
       timestamp = Time.now();
     };
 
-    chatHistory.add(assistantMessage);
+    // Add assistant message to history
+    existingHistory.add(assistantMessage);
 
-    messageCounter += 1;
+    chatHistory.add(caller, existingHistory);
+
+    nextMessageId += 2;
     assistantMessage;
   };
 
@@ -176,14 +153,31 @@ actor {
       "Sure! What can I do for you today?",
       "Sounds good! How can I assist further?",
     ];
-    responses[messageCounter % responses.size()];
+    responses[nextMessageId % responses.size()];
   };
 
-  public query ({ caller }) func getChatHistory() : async [Message] {
-    chatHistory.toArray();
+  public query ({ caller }) func getChatHistory() : async [ChatMessage] {
+    switch (chatHistory.get(caller)) {
+      case (null) { [] };
+      case (?history) { history.reverse().toArray() };
+    };
   };
 
   public shared ({ caller }) func clearChatHistory() : async () {
-    chatHistory.clear();
+    chatHistory.remove(caller);
+  };
+
+  // App Preferences
+
+  public shared ({ caller }) func setPreference(key : Text, value : Text) : async () {
+    appPreferences.add(key, value);
+  };
+
+  public query ({ caller }) func getPreference(key : Text) : async ?Text {
+    appPreferences.get(key);
+  };
+
+  public query ({ caller }) func getAllPreferences() : async [(Text, Text)] {
+    appPreferences.toArray();
   };
 };
