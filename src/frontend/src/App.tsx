@@ -18,6 +18,7 @@ import { useCallback, useRef, useState } from "react";
 import GamesTab from "./components/GamesTab";
 import GauthAIChat from "./components/GauthAIChat";
 import InstagramFeed from "./components/InstagramFeed";
+import SnapchatReels from "./components/SnapchatReels";
 import SoundButtonsWorld from "./components/SoundButtonsWorld";
 import {
   type Video,
@@ -29,7 +30,13 @@ import {
 
 const CATEGORIES = ["All", "Music", "Gaming", "Education", "Comedy", "Sports"];
 
-type AppTab = "youtube" | "gauth" | "sounds" | "instagram" | "games";
+type AppTab =
+  | "youtube"
+  | "gauth"
+  | "sounds"
+  | "instagram"
+  | "snapchat"
+  | "games";
 
 // ─── Skeleton Card ────────────────────────────────────────────────────────────
 
@@ -82,7 +89,7 @@ function VideoCard({ video, index, onClick }: VideoCardProps) {
       <div className="relative overflow-hidden aspect-video bg-muted">
         {!imgError ? (
           <img
-            src={`https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`}
+            src={`https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`}
             alt={video.title}
             className="w-full h-full object-cover thumbnail-zoom"
             onError={() => setImgError(true)}
@@ -181,11 +188,12 @@ function PlayerModal({ video, onClose }: PlayerModalProps) {
                 style={{ aspectRatio: "16 / 9" }}
               >
                 <iframe
-                  src={`https://www.youtube.com/embed/${video.videoId}?autoplay=1&rel=0`}
+                  src={`https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1&rel=0&origin=${encodeURIComponent(window.location.origin)}`}
                   title={video.title}
                   className="absolute inset-0 w-full h-full"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
                 />
               </div>
 
@@ -650,6 +658,7 @@ const TAB_ORDER: AppTab[] = [
   "gauth",
   "sounds",
   "instagram",
+  "snapchat",
   "games",
 ];
 
@@ -757,6 +766,21 @@ export default function App() {
                         ocid: "nav.instagram.tab",
                       },
                       {
+                        id: "snapchat",
+                        icon: (
+                          <span className="text-base leading-none flex-shrink-0">
+                            👻
+                          </span>
+                        ),
+                        label: "Spotlight",
+                        ring: "focus-visible:ring-yellow-400",
+                        active: "text-yellow-400 bg-yellow-400/10",
+                        inactive:
+                          "text-muted-foreground hover:text-yellow-400 hover:bg-yellow-400/10",
+                        activeBg: "bg-yellow-400/10",
+                        ocid: "nav.snapchat.tab",
+                      },
+                      {
                         id: "games",
                         icon: <Gamepad2 className="w-4 h-4 flex-shrink-0" />,
                         label: "Games",
@@ -855,6 +879,18 @@ export default function App() {
                 transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
               >
                 <InstagramFeed />
+              </motion.div>
+            ) : activeTab === "snapchat" ? (
+              <motion.div
+                key="snapchat"
+                className="flex-1 flex flex-col overflow-hidden"
+                custom={direction}
+                initial={{ opacity: 0, x: direction * 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: direction * -40 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <SnapchatReels />
               </motion.div>
             ) : (
               <motion.div
